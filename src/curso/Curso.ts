@@ -7,11 +7,11 @@ import NomeSimples from "@/shared/NomeSimples";
 import Ordem from "@/shared/Ordem";
 
 export interface CursoProps extends EntidadeProps {
-  nome: string;
-  data: Date;
-  capitulos: CapituloProps[];
-  duracao: number;
-  quantidadeDeAulas: number;
+  nome?: string;
+  data?: Date;
+  capitulos?: CapituloProps[];
+  duracao?: number;
+  quantidadeDeAulas?: number;
 }
 
 export default class Curso extends Entidade<Curso, CursoProps> {
@@ -30,7 +30,7 @@ export default class Curso extends Entidade<Curso, CursoProps> {
     });
 
     this.nome = new NomeSimples(this.props.nome!, 3, 50);
-    this.data = this.props.data;
+    this.data = this.props.data!;
     this.capitulos = this.props.capitulos!.map(
       (capitulo) => new Capitulo(capitulo)
     );
