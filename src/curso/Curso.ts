@@ -5,6 +5,7 @@ import Duracao from "@/shared/Duracao";
 import Entidade, { EntidadeProps } from "@/shared/Entidade";
 import NomeSimples from "@/shared/NomeSimples";
 import Ordem from "@/shared/Ordem";
+import Aula from "./Aula";
 
 export interface CursoProps extends EntidadeProps {
   nome?: string;
@@ -42,9 +43,79 @@ export default class Curso extends Entidade<Curso, CursoProps> {
       ErroValidacao.lancar(Erros.CURSO_SEM_DURACAO, duracao);
     }
 
-    if (quantidadeDeAulas! <= 0) {
+    if (!quantidadeDeAulas || quantidadeDeAulas <= 0) {
       ErroValidacao.lancar(Erros.CURSO_SEM_AULAS, quantidadeDeAulas);
     }
+  }
+
+  atualizarAula(selecionada: Aula): Curso {
+    const capitulos = this.capitulos.map((capitulo) => {
+      const aulas = capitulo.aulas.map((aula) =>
+        aula.igual(selecionada) ? selecionada : aula
+      );
+      return {
+        ...capitulo.props,
+        aulas: aulas.map((aula) => aula.props),
+      } as CapituloProps;
+    });
+    return this.clone({ capitulos });
+  }
+
+  adicionarCapitulo(capitulo: Capitulo, posicao?: number): Curso {
+    const atuais = this.capitulos;
+    const novosCapitulos =
+      posicao !== undefined
+        ? [...atuais.slice(0, posicao), capitulo, ...atuais.slice(posicao)]
+        : [...atuais, capitulo];
+    const capitulos = Curso.reatribuirOrder(novosCapitulos).map(
+      (capitulo) => capitulo.props
+    );
+    return this.clone({ capitulos });
+  }
+
+  removerCapitulo(selecionado: Capitulo): Curso {
+    const outrosCapitulos = this.capitulos.filter((capitulo) =>
+      capitulo.diferente(selecionado)
+    );
+    const capitulos = Curso.reatribuirOrder(outrosCapitulos).map(
+      (capitulo) => capitulo.props
+    );
+    return this.clone({ capitulos });
+  }
+
+  moverCapitulo(selecionada: Capitulo, posicao: number): Curso {
+    return this.removerCapitulo(selecionada).adicionarCapitulo(
+      selecionada,
+      posicao
+    );
+  }
+
+  moverCapituloParaCima(selecionado: Capitulo): Curso {
+    const posicao = this.capitulos.findIndex((capitulo) =>
+      capitulo.igual(selecionado)
+    );
+    const primeira = posicao === 0;
+    return primeira ? this : this.moverCapitulo(selecionado, posicao - 1);
+  }
+
+  moverCapituloParaBaixo(selecionado: Capitulo): Curso {
+    const posicao = this.capitulos.findIndex((capitulo) =>
+      capitulo.igual(selecionado)
+    );
+    const ultima = posicao === this.capitulos.length - 1;
+    return ultima ? this : this.moverCapitulo(selecionado, posicao + 1);
+  }
+
+  get aulas(): Aula[] {
+    return this.capitulos.flatMap((capitulo) => capitulo.aulas);
+  }
+
+  get primeiroCapitulo() {
+    return this.capitulos[0];
+  }
+
+  get ultimoCapitulo() {
+    return this.capitulos[this.capitulos.length - 1];
   }
 
   private static calcularNumerosDoCurso(props: CursoProps) {
@@ -56,7 +127,7 @@ export default class Curso extends Entidade<Curso, CursoProps> {
     }
 
     const capitulos = props.capitulos.map((capitulo) => new Capitulo(capitulo));
-    const ducacao = capitulos.reduce(
+    const duracao = capitulos.reduce(
       (total, capitulo) => total + capitulo.duracao.segundos,
       0
     );
@@ -65,7 +136,7 @@ export default class Curso extends Entidade<Curso, CursoProps> {
       0
     );
 
-    return { ducacao, quantidadeDeAulas };
+    return { duracao, quantidadeDeAulas };
   }
 
   private static ordenarCapitulo(

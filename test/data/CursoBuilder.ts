@@ -63,7 +63,7 @@ export default class CursoBuilder {
   }
 
   semCapitulos(): CursoBuilder {
-    this.props.capitulos = [];
+    this.props.capitulos = undefined;
     return this;
   }
 
