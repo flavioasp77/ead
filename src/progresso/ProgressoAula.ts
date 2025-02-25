@@ -37,11 +37,11 @@ export default class ProgressoAula extends Entidade<
   }
 
   get iniciado(): boolean {
-    return this.dataInicio !== null;
+    return this.dataInicio !== undefined;
   }
 
   get concluido(): boolean {
-    return this.dataConlusao !== null;
+    return this.dataConlusao !== undefined;
   }
 
   iniciar(): ProgressoAula {
