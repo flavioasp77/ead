@@ -18,7 +18,13 @@ export default class ProgressoAulaBuilder {
     });
   }
 
-  comId(id: string) {
+  static criarListaCom(qtde?: number): ProgressoAula[] {
+    return Array.from({ length: qtde ?? 0 }).map(() =>
+      ProgressoAulaBuilder.criar().agora()
+    );
+  }
+
+  comId(id: string): ProgressoAulaBuilder {
     this.props.id = id;
     return this;
   }
@@ -28,7 +34,7 @@ export default class ProgressoAulaBuilder {
     return this;
   }
 
-  comNomeDaAula(nome: string) {
+  comNomeDaAula(nome: string): ProgressoAulaBuilder {
     this.props.nomeAula = nome;
     return this;
   }
